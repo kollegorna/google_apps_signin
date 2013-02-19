@@ -1,4 +1,4 @@
-i<?php
+<?php
 
 /**
  * Implements hook_form_alter().
