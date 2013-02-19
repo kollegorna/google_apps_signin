@@ -16,6 +16,24 @@ function google_apps_signin_form_alter(&$form, $form_state, $form_id) {
 }
 
 
+/**
+  * Implements hook_menu().
+  */
+function google_apps_signin_menu() {
+
+  $items['user/login/google_apps'] = array(
+    'type' => MENU_CALLBACK,
+    'page callback' => '_google_apps_signin_login',
+    'access callback' => TRUE,
+  );
+  $items['user/login/google_apps/return'] = array(
+    'type' => MENU_CALLBACK,
+    'page callback' => '_google_apps_signin_return',
+    'access callback' => TRUE,
+  );
+  return $items;
+}
+
 
 /*
  * Get or make a temporary folder for caching the Google what-have-yous.
