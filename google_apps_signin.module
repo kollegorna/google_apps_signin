@@ -5,16 +5,48 @@
  */
 function google_apps_signin_form_alter(&$form, $form_state, $form_id) {
 
-  switch ($form_id):
-    case 'user_login_block':
-    case 'user_login':
-      $form['google_apps_link'] = array(
-        '#markup' => l(t('Sign in with Google'), 'user/login/google_apps'),
-        '#weight' => 10,
-      );
-  endswitch;
+  switch ($form_id) {
+  case 'user_login_block':
+  case 'user_login':
+    $form['google_apps_link'] = array(
+      '#markup' => l(t('Sign in with Google'), 'user/login/google_apps'),
+      '#weight' => 10,
+    );
+  }
 }
 
+/*
+ * Implementation of hook_libraries_info()
+ */
+function google_apps_signin_libraries_info() {
+
+  $libraries['php-openid'] = array(
+    'name' => 'PHP OpenID',
+    'vendor url' => 'https://github.com/openid/php-openid',
+    'download url' => 'https://github.com/openid/php-openid',
+    //'path' => 'Auth',
+    'version arguments' => array(
+      'file' => 'Auth/OpenID.php',
+      // Best practice: Document the actual version strings for later reference.
+      // 1.x: Version 1.0
+      'pattern' => "/define\(\'Auth_OpenID_VERSION\', \'(\d+\.\d+\.\d+)\'\)\;/",
+      'lines' => 23,
+    ),
+    'files' => array(
+      'php' => array(
+        'Auth/OpenID.php',
+        'Auth/OpenID/Consumer.php',
+        'Auth/OpenID/AX.php',
+        'Auth/OpenID/google_discovery.php',
+        'Auth/OpenID/FileStore.php',
+        'Auth/OpenID/SReg.php',
+        'Auth/OpenID/PAPE.php',
+      ),
+    ),
+  );
+
+  return $libraries;
+}
 
 /*
  * Load the php-openid library
@@ -25,14 +57,10 @@ function _google_apps_signin_load() {
     return;
   }
   $done = TRUE;
-  $lib_path = drupal_get_path('module', 'google_apps_signin'). '/Auth/OpenID';
 
-  require_once "$lib_path/Consumer.php";
-  require_once "$lib_path/AX.php";
-  require_once "$lib_path/google_discovery.php";
-  require_once "$lib_path/FileStore.php";
-  require_once "$lib_path/SReg.php";
-  require_once "$lib_path/PAPE.php";
+  // TODO: The horror, the horror...
+  set_include_path(get_include_path() . PATH_SEPARATOR . libraries_get_path('php-openid'));
+  $library = libraries_load('php-openid');
 }
 
 
@@ -58,7 +86,7 @@ function google_apps_signin_menu() {
 /*
  * Get or make a temporary folder for caching the Google what-have-yous.
  */
-function _google_apps_get_temp_dir() {
+function _google_apps_signin_get_temp_dir() {
   $temp_dir = variable_get('file_public_path', conf_path() . '/files/tmp');
   if (!is_dir($temp_dir)) {
     drupal_mkdir($temp_dir);
@@ -74,7 +102,7 @@ function _google_apps_signin_login() {
   global $base_url;
   _google_apps_signin_load();
 
-  $temp_dir = _google_apps_get_temp_dir();
+  $temp_dir = _google_apps_signin_get_temp_dir();
 
   // Cache for google discovery (much faster)
   $cache = new FileCache($temp_dir);
@@ -130,6 +158,7 @@ function _google_apps_signin_login() {
  *
  */
 function _google_apps_signin_return() {
+  global $base_url;
   $temp_dir = _google_apps_signin_get_temp_dir();
   _google_apps_signin_load();
 
@@ -139,28 +168,33 @@ function _google_apps_signin_return() {
 
   new GApps_OpenID_Discovery($consumer, null, $cache);
 
-  $response = $consumer->complete($base_path . '/user/login/google_apps/return');
+  $response = $consumer->complete($base_url . '/user/login/google_apps/return');
 
+
+  if ($response->status == Auth_OpenID_SUCCESS) {
+    // Extract returned information
+    $openid = $response->getDisplayIdentifier();
+    $ax = new Auth_OpenID_AX_FetchResponse();
+    if ($ax) $ax = $ax->fromSuccessResponse($response);
+
+    $sreg = Auth_OpenID_SRegResponse::fromSuccessResponse($response);
+    if ($sreg ) $sreg = $sreg->contents();
+
+    $name = $ax->data['http://axschema.org/namePerson/first'][0] . ' ' . $ax->data['http://axschema.org/namePerson/last'][0];
+    user_external_login_register($name, 'google_apps_signin');
+    drupal_goto('user');
+  }
   // Check the response status.
-  if ($response->status == Auth_OpenID_CANCEL) die('Verification cancelled.');
-  if ($response->status == Auth_OpenID_FAILURE) die("OpenID authentication failed: " . $response->message);
-  if ($response->status != Auth_OpenID_SUCCESS) die('Other error');
+  if ($response->status == Auth_OpenID_CANCEL) drupal_set_message(t('OpenID Verification cancelled.'), 'error');
+  else if ($response->status == Auth_OpenID_FAILURE) drupal_set_message(t('OpenID authentication failed: @error', array('@error' => $response->message)));
+  else if ($response->status != Auth_OpenID_SUCCESS) drupal_set_message(t('Unknown OpenID error. Sorry.'));
 
-  // Successful login
+  drupal_goto('user');
+ # print response
 
-  // Extract returned information
-  $openid = $response->getDisplayIdentifier();
-  $ax = new Auth_OpenID_AX_FetchResponse();
-  if ($ax) $ax = $ax->fromSuccessResponse($response);
-
-  $sreg = Auth_OpenID_SRegResponse::fromSuccessResponse($response);
-  if ($sreg ) $sreg = $sreg->contents();
-
-  # print response
-
-  var_dump($openid);
-  var_dump($ax_data);
-  var_dump($sreg);
+ // var_dump($openid);
+//  var_dump($ax->data);
+ // var_dump($sreg);
 }
 
 class FileCache {

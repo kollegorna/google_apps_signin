@@ -1,3 +1,4 @@
 name = Google Apps Sign-in
 description = This module allows you to sign-in using Google Apps.
 core = 7.x
+dependencies[] = libraries (2.x)
