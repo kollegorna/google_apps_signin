@@ -24,11 +24,8 @@ function google_apps_signin_libraries_info() {
     'name' => 'PHP OpenID',
     'vendor url' => 'https://github.com/openid/php-openid',
     'download url' => 'https://github.com/openid/php-openid',
-    //'path' => 'Auth',
     'version arguments' => array(
       'file' => 'Auth/OpenID.php',
-      // Best practice: Document the actual version strings for later reference.
-      // 1.x: Version 1.0
       'pattern' => "/define\(\'Auth_OpenID_VERSION\', \'(\d+\.\d+\.\d+)\'\)\;/",
       'lines' => 23,
     ),
@@ -182,6 +179,7 @@ function _google_apps_signin_return() {
 
     $name = $ax->data['http://axschema.org/namePerson/first'][0] . ' ' . $ax->data['http://axschema.org/namePerson/last'][0];
     user_external_login_register($name, 'google_apps_signin');
+    // TODO: Add roles
     drupal_goto('user');
   }
   // Check the response status.
