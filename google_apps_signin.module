@@ -49,7 +49,7 @@ function _google_apps_signin_login() {
   new GApps_OpenID_Discovery($consumer, null, $cache);
 
   try {
-    $auth_request = $consumer->begin($_POST['domain']);
+    $auth_request = $consumer->begin(variable_get('google_apps_signin_domain', 'kollegorna.se'));
     if (!is_object($auth_request)) die('Auth request object error. Try again');
   } catch (Exception $error) {
     die($error->getMessage());
