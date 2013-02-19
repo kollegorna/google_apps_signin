@@ -1,4 +1,4 @@
-<?php
+i<?php
 
 /**
  * Implements hook_form_alter().
@@ -16,9 +16,29 @@ function google_apps_signin_form_alter(&$form, $form_state, $form_id) {
 }
 
 
+/*
+ * Load the php-openid library
+ */
+function _google_apps_signin_load() {
+  static $done = FALSE;
+  if ($done) {
+    return;
+  }
+  $done = TRUE;
+  $lib_path = drupal_get_path('module', 'google_apps_signin'). '/Auth/OpenID';
+
+  require_once "$lib_path/Consumer.php";
+  require_once "$lib_path/AX.php";
+  require_once "$lib_path/google_discovery.php";
+  require_once "$lib_path/FileStore.php";
+  require_once "$lib_path/SReg.php";
+  require_once "$lib_path/PAPE.php";
+}
+
+
 /**
-  * Implements hook_menu().
-  */
+ * Implements hook_menu().
+ */
 function google_apps_signin_menu() {
 
   $items['user/login/google_apps'] = array(
@@ -52,6 +72,7 @@ function _google_apps_get_temp_dir() {
  */
 function _google_apps_signin_login() {
   global $base_url;
+  _google_apps_signin_load();
 
   $temp_dir = _google_apps_get_temp_dir();
 
@@ -110,6 +131,7 @@ function _google_apps_signin_login() {
  */
 function _google_apps_signin_return() {
   $temp_dir = _google_apps_signin_get_temp_dir();
+  _google_apps_signin_load();
 
   $store = new Auth_OpenID_FileStore($temp_dir);
   $consumer = new Auth_OpenID_Consumer($store);
