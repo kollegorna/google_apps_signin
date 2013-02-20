@@ -49,12 +49,6 @@ function google_apps_signin_libraries_info() {
  * Load the php-openid library
  */
 function _google_apps_signin_load() {
-  static $done = FALSE;
-  if ($done) {
-    return;
-  }
-  $done = TRUE;
-
   // TODO: The horror, the horror...
   set_include_path(get_include_path() . PATH_SEPARATOR . libraries_get_path('php-openid'));
   $library = libraries_load('php-openid');
@@ -125,6 +119,7 @@ function _google_apps_signin_login() {
   $ax->add( Auth_OpenID_AX_AttrInfo::make('http://axschema.org/namePerson/first',1,1, 'firstname') );
   $ax->add( Auth_OpenID_AX_AttrInfo::make('http://axschema.org/namePerson/last',1,1, 'lastname') );
 
+  /* TODO: Use more of these?
   $ax->add( Auth_OpenID_AX_AttrInfo::make('http://axschema.org/namePerson/friendly',1,1,'friendly') );
   $ax->add( Auth_OpenID_AX_AttrInfo::make('http://axschema.org/namePerson',1,1,'fullname') );
   $ax->add( Auth_OpenID_AX_AttrInfo::make('http://axschema.org/birthDate',1,1,'dob') );
@@ -133,7 +128,7 @@ function _google_apps_signin_login() {
   $ax->add( Auth_OpenID_AX_AttrInfo::make('http://axschema.org/contact/country/home',1,1,'country') );
   $ax->add( Auth_OpenID_AX_AttrInfo::make('http://axschema.org/pref/language',1,1,'language') );
   $ax->add( Auth_OpenID_AX_AttrInfo::make('http://axschema.org/pref/timezone',1,1,'timezone') );
-
+ */
   $auth_request->addExtension($ax);
 
   // Request URL for auth dialog url 
@@ -180,19 +175,12 @@ function _google_apps_signin_return() {
     $name = $ax->data['http://axschema.org/namePerson/first'][0] . ' ' . $ax->data['http://axschema.org/namePerson/last'][0];
     user_external_login_register($name, 'google_apps_signin');
     // TODO: Add roles
-    drupal_goto('user');
   }
-  // Check the response status.
-  if ($response->status == Auth_OpenID_CANCEL) drupal_set_message(t('OpenID Verification cancelled.'), 'error');
+  else if ($response->status == Auth_OpenID_CANCEL) drupal_set_message(t('OpenID Verification cancelled.'), 'error');
   else if ($response->status == Auth_OpenID_FAILURE) drupal_set_message(t('OpenID authentication failed: @error', array('@error' => $response->message)));
   else if ($response->status != Auth_OpenID_SUCCESS) drupal_set_message(t('Unknown OpenID error. Sorry.'));
 
   drupal_goto('user');
- # print response
-
- // var_dump($openid);
-//  var_dump($ax->data);
- // var_dump($sreg);
 }
 
 class FileCache {
