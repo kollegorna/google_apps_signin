@@ -5,7 +5,10 @@ credentials.
 
 ## Configuration
 
-...
+In your `settings.php`:
+
+    $conf['google_apps_signin_domain'] = 'example.com';
+    $conf['google_apps_signin_user_roles'] = array('some_role', 'another_role'); // TODO
 
 ## Dependencies
 
