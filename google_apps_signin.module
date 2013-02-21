@@ -175,9 +175,11 @@ function _google_apps_signin_return() {
     user_external_login_register($name, 'google_apps_signin');
     global $user;
     $roles = variable_get('google_apps_signin_user_roles', array());
-    if (!empty($roles)) {
-      $edit['roles'] = $roles;
-      user_save($user, $edit)
+    if ($roles) {
+      $edit['roles'] = $user->roles + $roles;
+      if (array_diff_assoc($edit['roles'], $user->roles)) {
+        user_save($user, $edit);
+      }
     }
   }
   else if ($response->status == Auth_OpenID_CANCEL) drupal_set_message(t('OpenID Verification cancelled.'), 'error');
