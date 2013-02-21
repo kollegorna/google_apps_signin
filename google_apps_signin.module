@@ -162,7 +162,6 @@ function _google_apps_signin_return() {
 
   $response = $consumer->complete($base_url . '/user/login/google_apps/return');
 
-
   if ($response->status == Auth_OpenID_SUCCESS) {
     // Extract returned information
     $openid = $response->getDisplayIdentifier();
@@ -174,7 +173,12 @@ function _google_apps_signin_return() {
 
     $name = $ax->data['http://axschema.org/namePerson/first'][0] . ' ' . $ax->data['http://axschema.org/namePerson/last'][0];
     user_external_login_register($name, 'google_apps_signin');
-    // TODO: Add roles
+    global $user;
+    $roles = variable_get('google_apps_signin_user_roles', array());
+    if (!empty($roles)) {
+      $edit['roles'] = $roles;
+      user_save($user, $edit)
+    }
   }
   else if ($response->status == Auth_OpenID_CANCEL) drupal_set_message(t('OpenID Verification cancelled.'), 'error');
   else if ($response->status == Auth_OpenID_FAILURE) drupal_set_message(t('OpenID authentication failed: @error', array('@error' => $response->message)));

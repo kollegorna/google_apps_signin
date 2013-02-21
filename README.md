@@ -8,13 +8,14 @@ credentials.
 In your `settings.php`:
 
     $conf['google_apps_signin_domain'] = 'example.com';
-    $conf['google_apps_signin_user_roles'] = array('some_role', 'another_role'); // TODO
+    $conf['google_apps_signin_user_roles'] = array('some_role', 'another_role');
 
 ## Dependencies
 
 The Janrain [PHP OpenID](https://github.com/openid/php-openid/) library and Google's [OpenID Apps Discovery
 extension](http://code.google.com/p/php-openid-apps-discovery/) need to be installed in your Drupal `libraries`
-folder.
+folder. You can use [this fork that combines the
+two](https://github.com/kollegorna/php-openid) if you like.
 
 ## Acknowledgements
 
