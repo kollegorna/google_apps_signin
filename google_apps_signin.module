@@ -134,6 +134,10 @@ function _google_apps_signin_login() {
  */
 function _google_apps_signin_return() {
   global $base_url;
+
+  // Drupal 6's clean URLs don't play nice with others, so let's stomp this cute little rabbit.
+  $_SERVER['QUERY_STRING'] = str_replace("q=user/login/google_apps/return", '', $_SERVER['QUERY_STRING']);
+
   $temp_dir = _google_apps_signin_get_temp_dir();
   _google_apps_signin_load();
 
