@@ -57,7 +57,7 @@ function _google_apps_signin_load() {
 
   // TODO: The horror, the horror...
   set_include_path(get_include_path() . PATH_SEPARATOR . libraries_get_path('php-openid'));
-  require_once 'Auth/OpenID.php');
+  require_once 'Auth/OpenID.php';
   require_once 'Auth/OpenID/Consumer.php';
   require_once 'Auth/OpenID/AX.php';
   require_once 'Auth/OpenID/google_discovery.php';,
