@@ -16,36 +16,6 @@ function google_apps_signin_form_alter(&$form, $form_state, $form_id) {
 }
 
 /*
- * Implementation of hook_libraries_info()
- */
-function google_apps_signin_libraries_info() {
-
-  $libraries['php-openid'] = array(
-    'name' => 'PHP OpenID',
-    'vendor url' => 'https://github.com/openid/php-openid',
-    'download url' => 'https://github.com/openid/php-openid',
-    'version arguments' => array(
-      'file' => 'Auth/OpenID.php',
-      'pattern' => "/define\(\'Auth_OpenID_VERSION\', \'(\d+\.\d+\.\d+)\'\)\;/",
-      'lines' => 23,
-    ),
-    'files' => array(
-      'php' => array(
-        'Auth/OpenID.php',
-        'Auth/OpenID/Consumer.php',
-        'Auth/OpenID/AX.php',
-        'Auth/OpenID/google_discovery.php',
-        'Auth/OpenID/FileStore.php',
-        'Auth/OpenID/SReg.php',
-        'Auth/OpenID/PAPE.php',
-      ),
-    ),
-  );
-
-  return $libraries;
-}
-
-/*
  * Load the php-openid library
  */
 function _google_apps_signin_load() {
