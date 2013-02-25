@@ -49,10 +49,23 @@ function google_apps_signin_libraries_info() {
  * Load the php-openid library
  */
 function _google_apps_signin_load() {
+  static $done = FALSE;
+  if ($done) {
+    return;
+  }
+  $done = TRUE;
+
   // TODO: The horror, the horror...
   set_include_path(get_include_path() . PATH_SEPARATOR . libraries_get_path('php-openid'));
-  $library = libraries_load('php-openid');
+  require_once 'Auth/OpenID.php');
+  require_once 'Auth/OpenID/Consumer.php';
+  require_once 'Auth/OpenID/AX.php';
+  require_once 'Auth/OpenID/google_discovery.php';,
+  require_once 'Auth/OpenID/FileStore.php';
+  require_once 'Auth/OpenID/SReg.php';
+  require_once 'Auth/OpenID/PAPE.php';
 }
+
 
 
 /**
@@ -80,7 +93,7 @@ function google_apps_signin_menu() {
 function _google_apps_signin_get_temp_dir() {
   $temp_dir = variable_get('file_public_path', conf_path() . '/files/tmp');
   if (!is_dir($temp_dir)) {
-    drupal_mkdir($temp_dir);
+    mkdir($temp_dir);
   }
   return $temp_dir;
 }
