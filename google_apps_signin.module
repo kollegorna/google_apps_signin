@@ -9,7 +9,7 @@ function google_apps_signin_form_alter(&$form, $form_state, $form_id) {
   case 'user_login_block':
   case 'user_login':
     $form['google_apps_link'] = array(
-      '#markup' => l(t('Sign in with Google'), 'user/login/google_apps'),
+      '#value' => '<p>'. l(t('Sign in with Google'), 'user/login/google_apps') .'</p>',
       '#weight' => 10,
     );
   }
