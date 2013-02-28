@@ -32,8 +32,8 @@ function google_apps_signin_form_alter(&$form, $form_state, $form_id) {
   case 'user_login_block':
   case 'user_login':
     $form['google_apps_link'] = array(
-      '#value' => '<p>'. l(t('Sign in with Google'), 'user/login/google_apps') .'</p>',
-      '#weight' => 10,
+      '#value' => l(t('Sign in with Google'), 'user/login/google_apps'),
+      '#weight' => 2,
     );
   }
 }
@@ -121,7 +121,7 @@ function _google_apps_signin_login() {
 
   /// Request additional parameters
   $ax = new Auth_OpenID_AX_FetchRequest;
-  $ax->add( Auth_OpenID_AX_AttrInfo::make('http://axschema.org/contact/email',2,1,'email') );
+  //$ax->add( Auth_OpenID_AX_AttrInfo::make('http://axschema.org/contact/email',2,1,'email') );
   $ax->add( Auth_OpenID_AX_AttrInfo::make('http://axschema.org/namePerson/first',1,1, 'firstname') );
   $ax->add( Auth_OpenID_AX_AttrInfo::make('http://axschema.org/namePerson/last',1,1, 'lastname') );
 
