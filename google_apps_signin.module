@@ -1,6 +1,26 @@
 <?php
 
 /**
+ * Implements hook_requirements().
+ */
+function google_apps_signin_requirements($phase) {
+  $requirements = array();
+  $t = get_t();
+
+  if ($phase == 'runtime') {
+    if (!variable_get('google_apps_signin_domain', NULL)) {
+      $requirements['google_apps_signin_domain'] = array(
+        'title' => $t('Google Apps Sign-in module'),
+        'description' => $t('No domain set, see the README for instructions.'),
+        'severity' => REQUIREMENT_WARNING,
+        'value' => $t('Not configured'),
+      );
+    }
+  }
+  return $requirements;
+}
+
+/**
  * Implements hook_form_alter().
  */
 function google_apps_signin_form_alter(&$form, $form_state, $form_id) {
@@ -107,7 +127,7 @@ function _google_apps_signin_login() {
   new GApps_OpenID_Discovery($consumer, null, $cache);
 
   try {
-    $auth_request = $consumer->begin(variable_get('google_apps_signin_domain', 'kollegorna.se'));
+    $auth_request = $consumer->begin(variable_get('google_apps_signin_domain', NULL));
     if (!is_object($auth_request)) die('Auth request object error. Try again');
   } catch (Exception $error) {
     die($error->getMessage());
@@ -128,7 +148,7 @@ function _google_apps_signin_login() {
   $ax->add( Auth_OpenID_AX_AttrInfo::make('http://axschema.org/contact/country/home',1,1,'country') );
   $ax->add( Auth_OpenID_AX_AttrInfo::make('http://axschema.org/pref/language',1,1,'language') );
   $ax->add( Auth_OpenID_AX_AttrInfo::make('http://axschema.org/pref/timezone',1,1,'timezone') );
- */
+   */
   $auth_request->addExtension($ax);
 
   // Request URL for auth dialog url 
